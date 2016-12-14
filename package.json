@@ -1,6 +1,6 @@
 {
   "name": "simple-react-i18n",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Simple i18n library for node ",
   "main": "lib/i18n.js",
   "scripts": {
@@ -17,6 +17,6 @@
   },
   "homepage": "https://github.com/haris44/Simple-i18n#readme",
   "dependencies": {
-    "fs": "0.0.1-security"
+    "json-loader": "^0.5.4"
   }
 }
