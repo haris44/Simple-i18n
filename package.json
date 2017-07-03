@@ -38,5 +38,8 @@
       "babel-register",
       "./test/helpers/setup-browser-env.js"
     ]
+  },
+  "devDependencies": {
+    "coveralls": "^2.13.1"
   }
 }
