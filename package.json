@@ -6,8 +6,7 @@
   "scripts": {
     "build": "webpack --progress --colors --config webpack.config.js",
     "watch": "webpack --progress --watch --colors --config webpack.config.js",
-    "coverage": "nyc ava",
-    "test": "ava --verbose"
+    "test": "nyc ava"
   },
   "repository": {
     "type": "git",
@@ -40,6 +39,7 @@
     ]
   },
   "devDependencies": {
-    "coveralls": "^2.13.1"
+    "coveralls": "^2.13.1",
+    "nyc": "^10.3.2"
   }
 }
