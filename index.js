@@ -115,7 +115,7 @@ var clear = function clear() {
 };
 module.exports = new Proxy({}, {
 	get: function get(cible, nom) {
-		if (nom === 'import' || nom === 'register') return register;else if (nom === 'init') return init;else if (nom === '__esModule') return false;else if (nom === "clear") return clear;else if (nom in jsonObj) return jsonObj[nom];else throw new Error("[i18n] Cannot found " + nom + " property");
+		if (nom === 'import' || nom === 'addLang') return register;else if (nom === 'init') return init;else if (nom === '__esModule') return false;else if (nom === "clear") return clear;else if (nom in jsonObj) return jsonObj[nom];else throw new Error("[i18n] Cannot found " + nom + " property");
 	}
 });
 
