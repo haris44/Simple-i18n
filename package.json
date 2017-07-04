@@ -1,8 +1,8 @@
 {
   "name": "simple-react-i18n",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Simple i18n library for node ",
-  "main": "lib/i18n.js",
+  "main": "index.js",
   "scripts": {
     "build": "webpack --progress --colors --config webpack.config.js",
     "watch": "webpack --progress --watch --colors --config webpack.config.js",
