@@ -142,19 +142,20 @@ module.exports = new Proxy({}, {
 
 
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-(function(scope) {
+(function (scope) {
   if (scope['Proxy']) {
     return;
   }
-  let lastRevokeFn = null;
+  var lastRevokeFn = null;
 
   /**
    * @param {*} o
    * @return {boolean} whether this is probably a (non-null) Object
    */
   function isObject(o) {
-    return o ? (typeof o == 'object' || typeof o == 'function') : false;
+    return o ? (typeof o === 'undefined' ? 'undefined' : _typeof(o)) == 'object' || typeof o == 'function' : false;
   }
 
   /**
@@ -162,7 +163,7 @@ module.exports = new Proxy({}, {
    * @param {!Object} target
    * @param {{apply, construct, get, set}} handler
    */
-  scope.Proxy = function(target, handler) {
+  scope.Proxy = function (target, handler) {
     if (!isObject(target) || !isObject(handler)) {
       throw new TypeError('Cannot create proxy with a non-object as target or handler');
     }
@@ -170,20 +171,20 @@ module.exports = new Proxy({}, {
     // Construct revoke function, and set lastRevokeFn so that Proxy.revocable can steal it.
     // The caller might get the wrong revoke function if a user replaces or wraps scope.Proxy
     // to call itself, but that seems unlikely especially when using the polyfill.
-    let throwRevoked = function() {};
-    lastRevokeFn = function() {
-      throwRevoked = function(trap) {
-        throw new TypeError(`Cannot perform '${trap}' on a proxy that has been revoked`);
+    var throwRevoked = function throwRevoked() {};
+    lastRevokeFn = function lastRevokeFn() {
+      throwRevoked = function throwRevoked(trap) {
+        throw new TypeError('Cannot perform \'' + trap + '\' on a proxy that has been revoked');
       };
     };
 
     // Fail on unsupported traps: Chrome doesn't do this, but ensure that users of the polyfill
     // are a bit more careful. Copy the internal parts of handler to prevent user changes.
-    const unsafeHandler = handler;
-    handler = {'get': null, 'set': null, 'apply': null, 'construct': null};
-    for (let k in unsafeHandler) {
+    var unsafeHandler = handler;
+    handler = { 'get': null, 'set': null, 'apply': null, 'construct': null };
+    for (var k in unsafeHandler) {
       if (!(k in handler)) {
-        throw new TypeError(`Proxy polyfill does not support trap '${k}'`);
+        throw new TypeError('Proxy polyfill does not support trap \'' + k + '\'');
       }
       handler[k] = unsafeHandler[k];
     }
@@ -195,13 +196,13 @@ module.exports = new Proxy({}, {
 
     // Define proxy as this, or a Function (if either it's callable, or apply is set).
     // TODO(samthor): Closure compiler doesn't know about 'construct', attempts to rename it.
-    let proxy = this;
-    let isMethod = false;
-    const targetIsFunction = typeof target == 'function';
+    var proxy = this;
+    var isMethod = false;
+    var targetIsFunction = typeof target == 'function';
     if (handler.apply || handler['construct'] || targetIsFunction) {
       proxy = function Proxy() {
-        const usingNew = (this && this.constructor === proxy);
-        const args = Array.prototype.slice.call(arguments);
+        var usingNew = this && this.constructor === proxy;
+        var args = Array.prototype.slice.call(arguments);
         throwRevoked(usingNew ? 'construct' : 'apply');
 
         if (usingNew && handler['construct']) {
@@ -212,9 +213,9 @@ module.exports = new Proxy({}, {
           // since the target was a function, fallback to calling it directly.
           if (usingNew) {
             // inspired by answers to https://stackoverflow.com/q/1606797
-            args.unshift(target);  // pass class as first arg to constructor, although irrelevant
+            args.unshift(target); // pass class as first arg to constructor, although irrelevant
             // nb. cast to convince Closure compiler that this is a constructor
-            const f = /** @type {!Function} */ (target.bind.apply(target, args));
+            var f = /** @type {!Function} */target.bind.apply(target, args);
             return new f();
           }
           return target.apply(this, args);
@@ -226,38 +227,38 @@ module.exports = new Proxy({}, {
 
     // Create default getters/setters. Create different code paths as handler.get/handler.set can't
     // change after creation.
-    const getter = handler.get ? function(prop) {
+    var getter = handler.get ? function (prop) {
       throwRevoked('get');
       return handler.get(this, prop, proxy);
-    } : function(prop) {
+    } : function (prop) {
       throwRevoked('get');
       return this[prop];
     };
-    const setter = handler.set ? function(prop, value) {
+    var setter = handler.set ? function (prop, value) {
       throwRevoked('set');
-      const status = handler.set(this, prop, value, proxy);
+      var status = handler.set(this, prop, value, proxy);
       if (!status) {
         // TODO(samthor): If the calling code is in strict mode, throw TypeError.
         // It's (sometimes) possible to work this out, if this code isn't strict- try to load the
         // callee, and if it's available, that code is non-strict. However, this isn't exhaustive.
       }
-    } : function(prop, value) {
+    } : function (prop, value) {
       throwRevoked('set');
       this[prop] = value;
     };
 
     // Clone direct properties (i.e., not part of a prototype).
-    const propertyNames = Object.getOwnPropertyNames(target);
-    const propertyMap = {};
-    propertyNames.forEach(function(prop) {
+    var propertyNames = Object.getOwnPropertyNames(target);
+    var propertyMap = {};
+    propertyNames.forEach(function (prop) {
       if (isMethod && prop in proxy) {
-        return;  // ignore properties already here, e.g. 'bind', 'prototype' etc
+        return; // ignore properties already here, e.g. 'bind', 'prototype' etc
       }
-      const real = Object.getOwnPropertyDescriptor(target, prop);
-      const desc = {
+      var real = Object.getOwnPropertyDescriptor(target, prop);
+      var desc = {
         enumerable: !!real.enumerable,
         get: getter.bind(target, prop),
-        set: setter.bind(target, prop),
+        set: setter.bind(target, prop)
       };
       Object.defineProperty(proxy, prop, desc);
       propertyMap[prop] = true;
@@ -266,7 +267,7 @@ module.exports = new Proxy({}, {
     // Set the prototype, or clone all prototype methods (always required if a getter is provided).
     // TODO(samthor): We don't allow prototype methods to be set. It's (even more) awkward.
     // An alternative here would be to _just_ clone methods to keep behavior consistent.
-    let prototypeOk = true;
+    var prototypeOk = true;
     if (Object.setPrototypeOf) {
       Object.setPrototypeOf(proxy, Object.getPrototypeOf(target));
     } else if (proxy.__proto__) {
@@ -275,11 +276,11 @@ module.exports = new Proxy({}, {
       prototypeOk = false;
     }
     if (handler.get || !prototypeOk) {
-      for (let k in target) {
-        if (propertyMap[k]) {
+      for (var _k in target) {
+        if (propertyMap[_k]) {
           continue;
         }
-        Object.defineProperty(proxy, k, {get: getter.bind(target, k)});
+        Object.defineProperty(proxy, _k, { get: getter.bind(target, _k) });
       }
     }
 
@@ -287,18 +288,17 @@ module.exports = new Proxy({}, {
     Object.seal(target);
     Object.seal(proxy);
 
-    return proxy;  // nb. if isMethod is true, proxy != this
+    return proxy; // nb. if isMethod is true, proxy != this
   };
 
-  scope.Proxy.revocable = function(target, handler) {
-    const p = new scope.Proxy(target, handler);
-    return {'proxy': p, 'revoke': lastRevokeFn};
+  scope.Proxy.revocable = function (target, handler) {
+    var p = new scope.Proxy(target, handler);
+    return { 'proxy': p, 'revoke': lastRevokeFn };
   };
 
   scope.Proxy['revocable'] = scope.Proxy.revocable;
   scope['Proxy'] = scope.Proxy;
 })(typeof process !== 'undefined' && {}.toString.call(process) == '[object process]' ? global : self);
-
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(3)))
 
 /***/ }),

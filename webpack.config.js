@@ -19,7 +19,10 @@ const config = {
         loaders: [
             {
                 test: /\.js?/,
-                include: APP_DIR,
+                include: [
+                    APP_DIR,
+                    path.resolve(__dirname, "node_modules/proxy-polyfill")
+                ],
                 loader: 'babel-loader'
             }
         ]
